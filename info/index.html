@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>CGT 470</title>
+   </head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/styles.css" />
+
+	<body>
+
+<header>
+Carbon Emissions
+<h3>Elizabeth McGuckin, Hsin-Pao Huang, Ben Carpenter</h3>
+</header>
+<!-- NAV SECTION + styling -->
+<div class="nav">
+      <ul>
+        <li><a class="active" href="#">Info</a></li>
+        <li><a href="../Final_Barchart/index.html">Bar Chart</a></li>
+        <li><a href="../Final_AreaChart/index.html">Area Chart</a></li>
+        <li><a href="../Final_Map/index.html">Map</a></li>
+      </ul>
+</div>
+<style>
+/*NAV CSS*/
+.nav{
+  background: #90EE90
+}
+.nav ul {
+  list-style: none;
+  background-color: #808080;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+.nav li {
+  
+  font-size: 1.4em;
+  line-height: 40px;
+  height: 40px;
+  border-bottom: 1px solid #888;
+}
+ 
+.nav a {
+  text-decoration: none;
+  color: #fff;
+  display: block;
+  transition: .4s background-color;
+}
+ 
+.nav a:hover {
+  background-color: black;
+	color: white;
+}
+ 
+.nav a.active {
+  background-color: #fff;
+  color: #444;
+  cursor: default;
+}
+ 
+@media screen and (min-width: 600px) {
+  .nav li {
+    width: 120px;
+    border-bottom: none;
+    height: 50px;
+    line-height: 50px;
+    font-size: 1.4em;
+  }
+
+  .nav li {
+    display: inline-block;
+    margin-right: -4px;
+  }
+}	
+</style>
+<!-- DESCRIPTIVE SECTION -->		
+<main>
+<div class="box">
+  <h1> Area Chart  </h1>
+  <h2>Sample of Midwest States' Carbon Emissions </h2>
+  <p> We got yearly carbon emission data from: <a href="https://www.eia.gov/environment/emissions/state/analysis/">The U.S. Energy Information Administration</a>.
+They keep track of location based carbon emissions, such as states. We selected a few from the midwest to include in our area chart. This chart is based on demos such as these: <a href="https://www.mattlayman.com/blog/2015/d3js-area-chart/">A "simple" D3.js area chart</a> and <a href="https://tympanus.net/codrops/2012/08/29/multiple-area-charts-with-d3-js/">Multiple Area Charts with D3.js</a>.
+
+  </p>
+  </div>
+
+  <div class="box">
+  <h1>Plane Travel Map </h1>
+  <h2>Carbon Emissions for Flights </h2>
+  <p> We got 2008 flight pattern data from: <a href="https://vega.github.io/vega/tutorials/airports/">Mapping Airport Connections Tutorial</a>.
+Using a <a href="https://www.distance.to/">distance calculator</a> we were able to find the distance between selected airports.
+The following process allows us to visualize carbon emissions from these patterns:
+90. 7 Passengers per flight * count flight * flight distance * 285g of CO2/passenger/km = total CO2 emission, in metric tonnes, of each flight route over a year.
+<br><br>
+Using this information, we created a map visualization to explore the carbon footprints of these flight patterns.
+Color shows the carbon footprint from flight route and line thickness is related to the number of flights that occured.
+<br><br>
+There is less travel to airports furthest away from INDY resulting in a smaller carbon footprint.
+From this visualization we learned that using an airplane for transportation uses more carbon footprint than we expected.
+<br><br>To create this visualization, we modified <a href="https://gist.github.com/ericfischer/dafc36a3d212da4619dde2d392553c7a">this</a> code.
+  </p>
+</div>
+
+<div class="box">
+  <h1>Barchart</h1>
+  <h2>Emissions for Different Methods of Transportation </h2>
+  <p>  The data used for this visualization is from the <a href="document.pdf">European Environment Agency</a>.
+    In this visualization, we look at eight different methods of transportation: small petrol car, medium petrol car,
+    large petrol car, small diesel car, large diesel car, bus, two-wheeler, and an aircraft.
+The average number of passengers for each method of transportation varies. The averge number of passengers for cars, busses, and airplanes are: 1.52, 12.7, and 88.
+
+<br><br> The focus of this visualization is on the carbon emissions for the average number of passengers for each method of transportation.
+
+<br><br>From this visualization, we can conclude that travel by airplane produces the most amount of CO2 per person per kilometer traveled whereas travel by bus produces the least amount of CO2 per person.
+
+<br><br> To create this visualization we modified the code, <a href="http://bl.ocks.org/1Cr18Ni9/bfadecc96183c48d13b7b90bcf358a61">BarChart with ToolTip</a>.
+  </p>
+</div>
+
+<div class="box">
+  <h1>Overview</h1>
+  <h2>What Can This Experience Teach Us? </h2>
+  <p> Carbon footprints in airplanes are higher than we anticipated.
+<br><br>We considered if it is really necessary that we take an airplane to cities that are in a driving distance to.
+<br><br>We learned that next time we are traveling somewhere we would consider different methods of travel.
+
+  </p>
+</div>
+
+</main>
+
+    <footer>
+      CGT 470 | Final Project | VAST Data Challenge
+    </footer>
+
+</body>
+</html>

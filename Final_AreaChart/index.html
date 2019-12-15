@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+		<meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+        <title>CGT470 Area Chart</title>
+        <meta name="description" content="Multiple Area Charts with D3.js " />
+        <meta name="keywords" content="d3.js, area charts, zoom, pan, data, infographic, ajavscript, chart" />
+        <meta name="author" content="Codrops" />
+        <link rel="shortcut icon" href="../favicon.ico"> 
+        <link rel="stylesheet" type="text/css" href="css/style.css" />
+		<link href="http://fonts.googleapis.com/css?family=Lato:300,700" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="js/modernizr.custom.79639.js"></script> 
+		<script src="http://d3js.org/d3.v2.js"></script>
+    </head>
+    <body>
+<!-- NAV SECTION + styling -->
+<div class="nav">
+      <ul>
+        <li><a href="../info/index.html">Info</a></li>
+        <li><a href="../Final_Barchart/index.html">Bar Chart</a></li>
+        <li><a href="#" class="active" >Area Chart</a></li>
+        <li><a href="../Final_Map/index.html">Map</a></li>
+      </ul>
+</div>
+<style>
+/*NAV CSS*/
+.nav{
+  background: #90EE90
+}
+.nav ul {
+  list-style: none;
+  background-color: #808080;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+.nav li {
+  
+  font-size: 1.4em;
+  line-height: 40px;
+  height: 40px;
+  border-bottom: 1px solid #888;
+}
+ 
+.nav a {
+  text-decoration: none;
+  color: #fff;
+  display: block;
+  transition: .4s background-color;
+}
+ 
+.nav a:hover {
+  background-color: black;
+	color: white;
+}
+ 
+.nav a.active {
+  background-color: #fff;
+  color: #444;
+  cursor: default;
+}
+ 
+@media screen and (min-width: 600px) {
+  .nav li {
+    width: 120px;
+    border-bottom: none;
+    height: 50px;
+    line-height: 50px;
+    font-size: 1.4em;
+  }
+
+  .nav li {
+    display: inline-block;
+    margin-right: -4px;
+  }
+}	
+</style>
+	<div>
+		<section>
+			<div id="chart-container">
+				<h2 style="text-align: center">Sample of Midwest States' Carbon Emissions</h2>
+					<script type="text/javascript">
+						var margin = {top: 10, right: 180, bottom: 150, left: 180},
+							width = 940 - margin.left - margin.right,
+							height = 1000 - margin.top - margin.bottom,
+							contextHeight = 50;
+							contextWidth = width * .5;
+							
+						var svg = d3.select("#chart-container").append("svg")
+												.attr("width", width + margin.left + margin.right)
+												.attr("height", (height + 100 + margin.top + margin.bottom));
+												
+						d3.csv('data.csv', createChart);
+						
+						function createChart(data){
+							var countries = [];
+							var charts = [];
+							var maxDataPoint = 0;
+						
+							for (var prop in data[0]) {
+								if (data[0].hasOwnProperty(prop)) {
+									if (prop != 'Year') {
+										countries.push(prop);
+									}
+								}
+							};
+							
+							var countriesCount = countries.length;
+							var startYear = data[0].Year;
+							var endYear = data[data.length - 1].Year;
+							var chartHeight = height * (1 / countriesCount);
+
+							data.forEach(function(d) {
+								for (var prop in d) {
+									if (d.hasOwnProperty(prop)) {
+										d[prop] = parseFloat(d[prop]);
+										
+										if (d[prop] > maxDataPoint) {
+											maxDataPoint = d[prop];
+										}
+										//console.log(maxDataPoint);
+										//console.log(prop);
+									}
+								}
+								
+								d.Year = new Date(d.Year,0,1);
+							});
+				
+							for(var i = 0; i < countriesCount; i++){
+								charts.push(new Chart({
+									data: data.slice(),
+									id: i,
+									name: countries[i],
+									width: width,
+									height: height * (1 / countriesCount),
+									maxDataPoint: maxDataPoint,
+									svg: svg,
+									margin: margin,
+									showBottomAxis: (i == countries.length - 1)
+								}));
+								
+							}
+							//console.log(countries[0]);
+							var contextXScale = d3.time.scale()
+									.range([0, contextWidth])
+									.domain(charts[0].xScale.domain());	
+							
+							var contextAxis = d3.svg.axis()
+									.scale(contextXScale)
+									.tickSize(contextHeight)
+									.tickPadding(-10)
+									.orient("bottom");
+							
+							var contextArea = d3.svg.area()
+									.interpolate("monotone")
+									.x(function(d) { return contextXScale(d.date); })
+									.y0(contextHeight)
+									.y1(0);
+				
+							var brush = d3.svg.brush()
+									.x(contextXScale)
+									.on("brush", onBrush);
+				
+							var context = svg.append("g")
+									.attr("class","context")
+									.attr("transform", "translate(" + (margin.left + width * .25) + "," + (height + margin.top + chartHeight) + ")");
+							
+							context.append("g")
+									.attr("class", "x axis top")
+									.attr("transform", "translate(0,0)")
+									.call(contextAxis)
+																
+							context.append("g")
+									.attr("class", "x brush")
+									.call(brush)
+									.selectAll("rect")
+										.attr("y", 0)
+										.attr("height", contextHeight);
+							
+							context.append("text")
+									.attr("class","instructions")
+									.attr("transform", "translate(0," + (contextHeight + 20) + ")")
+									.text('Click and drag above to zoom / pan the data');
+												
+							function onBrush(){
+								var b = brush.empty() ? contextXScale.domain() : brush.extent();
+								for(var i = 0; i < countriesCount; i++){
+									charts[i].showOnly(b);
+								}
+							}
+						}
+						
+						function Chart(options){
+							this.chartData = options.data;
+							this.width = options.width;
+							this.height = options.height;
+							this.maxDataPoint = options.maxDataPoint;
+							this.svg = options.svg;
+							this.id = options.id;
+							this.name = options.name;
+							this.margin = options.margin;
+							this.showBottomAxis = options.showBottomAxis;
+							
+							var localName = this.name;
+							
+							this.xScale = d3.time.scale()
+								.range([0, this.width])
+								.domain(d3.extent(this.chartData.map(function(d) { return d.Year; })));
+							
+							this.yScale = d3.scale.linear()
+								.range([this.height,0])
+								.domain([0,400]);
+							var xS = this.xScale;
+							var yS = this.yScale;
+							
+							this.area = d3.svg.area()
+								.interpolate("basis")
+								.x(function(d) { return xS(d.Year); })
+								.y0(this.height)
+								.y1(function(d) { return yS(d[localName]); });
+							
+							this.svg.append("defs").append("clipPath")
+								.attr("id", "clip-" + this.id)
+								.append("rect")
+									.attr("width", this.width)
+									.attr("height", this.height);
+							
+							this.chartContainer = svg.append("g")
+								.attr('class',this.name.toLowerCase())
+								.attr("transform", "translate(" + this.margin.left + "," + (this.margin.top + (this.height * this.id) + (10 * this.id)) + ")");
+				
+							
+							this.chartContainer.append("path")
+								.data([this.chartData])
+								.attr("class", "chart")
+								.attr("clip-path", "url(#clip-" + this.id + ")")
+								.attr("d", this.area);
+															
+							this.xAxisTop = d3.svg.axis().scale(this.xScale).orient("bottom");
+							this.xAxisBottom = d3.svg.axis().scale(this.xScale).orient("top");
+	
+							if(this.id == 0){
+								this.chartContainer.append("g")
+									.attr("class", "x axis top")
+									.attr("transform", "translate(0,0)")
+									.call(this.xAxisTop);
+							}
+							
+							if(this.showBottomAxis){
+									this.chartContainer.append("g")
+										.attr("class", "x axis bottom")
+										.attr("transform", "translate(0," + this.height + ")")
+										.call(this.xAxisBottom);
+								}  
+								
+							this.yAxis = d3.svg.axis().scale(this.yScale).orient("left").ticks(5);
+								
+							this.chartContainer.append("g")
+									.attr("class", "y axis")
+									.attr("transform", "translate(-15,0)")
+									.call(this.yAxis);
+																	
+							this.chartContainer.append("text")
+									.attr("class","country-title")
+									.attr("transform", "translate(15,40)")
+									.text(this.name);
+							
+						}
+							
+						Chart.prototype.showOnly = function(b){
+								this.xScale.domain(b);
+								this.chartContainer.select("path").data([this.chartData]).attr("d", this.area);
+								this.chartContainer.select(".x.axis.top").call(this.xAxisTop);
+								this.chartContainer.select(".x.axis.bottom").call(this.xAxisBottom);
+						}
+						
+						
+					</script>
+				</div>
+				
+			</section>
+			
+        </div>
+    </body>
+</html>

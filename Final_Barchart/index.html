@@ -1,0 +1,242 @@
+<!--Modified code from http://bl.ocks.org/1Cr18Ni9/bfadecc96183c48d13b7b90bcf358a61
+    to make this visualization.-->
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://d3js.org/d3.v3.min.js"></script>
+  <style>
+    body { margin:0;position:fixed;top:0;right:0;bottom:0;left:0; }
+    .xGroup line, .xGroup path{
+    	visibility: hidden;
+		}
+  .tooltip{
+      position      : absolute;
+      text-align    : center;
+      max-width     : 70px;
+      max-height    : 30px;
+      padding       : 8px;
+      border        : none;
+      border-radius : 8px;
+      margin-top    : -30px;
+      font          : 10px sans-serif;
+      background    : black;
+      color         : white;
+      pointer-events: none;
+  }
+  </style>
+</head>
+
+<body>
+<!-- NAV SECTION + styling -->
+<div class="nav">
+      <ul>
+        <li><a href="../info/index.html">Info</a></li>
+        <li><a href="#" class="active">Bar Chart</a></li>
+        <li><a href="../Final_AreaChart/index.html">Area Chart</a></li>
+        <li><a href="../Final_Map/index.html">Map</a></li>
+      </ul>
+</div>
+<style>
+/*NAV CSS*/
+.nav{
+  background: #90EE90
+}
+.nav ul {
+  list-style: none;
+  background-color: #808080;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+.nav li {
+  
+  font-size: 1.4em;
+  line-height: 40px;
+  height: 40px;
+  border-bottom: 1px solid #888;
+}
+ 
+.nav a {
+  text-decoration: none;
+  color: #fff;
+  display: block;
+  transition: .4s background-color;
+}
+ 
+.nav a:hover {
+  background-color: black;
+	color: white;
+}
+ 
+.nav a.active {
+  background-color: #fff;
+  color: #444;
+  cursor: default;
+}
+ 
+@media screen and (min-width: 600px) {
+  .nav li {
+    width: 120px;
+    border-bottom: none;
+    height: 50px;
+    line-height: 50px;
+    font-size: 1.4em;
+  }
+
+  .nav li {
+    display: inline-block;
+    margin-right: -4px;
+  }
+}	
+</style>
+<div id="container"></div>
+
+<script id="codeExcute">
+
+// This exmaple is enlighten by http://bl.ocks.org/mbostock/1087001
+
+var url = 'data.csv'
+
+d3.csv(url, function(error, data){
+    data.forEach(function (d) {
+      d.emissions = +d.emissions;
+    });
+    // console.log(data)
+    var margin = {top: 100, bottom: 50, left: 100, right: 100}, axisPadding = 10;
+    var Width = 1000, Height = 500; //orig 600 testing for new fitting dimensions
+    var svgWidth = Width + margin.left + margin.right,
+        svgHeight = Height + margin.top + margin.bottom;
+    var maxEmissions = d3.max(data, function(d){ return d.emissions; });
+
+
+    // define scales and axises
+    var xScale = d3.scale.ordinal()
+        .domain(data.map(function(d){ return d.vehicle; }))
+        .rangeBands([0, Width], 0.1);
+    var yScale = d3.scale.linear()
+        .domain([0, maxEmissions])
+        .range([0, Height]);
+    var color = d3.scale.category10();
+
+    var xAxis = d3.svg.axis()
+        .scale(xScale)
+        .tickSize(0,0)
+        .orient('bottom');
+    var yAxis = d3.svg.axis()
+        .scale(yScale.copy().domain([maxEmissions, 0]))
+        .tickSize(7,0)
+        .ticks(6)
+        .orient('left');
+
+    // create a svg canvas
+    var svg = d3.select('#container')
+        .append('svg')
+        .attr({width: svgWidth, height: svgHeight})
+
+
+    // Drawing for axises
+    var xGroup = svg.append('g')
+        .attr('class', 'xGroup')
+        .attr('transform', 'translate(' + [margin.left, margin.top + Height + axisPadding] + ')');
+    xGroup.call(xAxis);
+    styleAxis(xGroup);
+    var yGroup = svg.append('g')
+        .attr('class', 'yGroup')
+        .attr('transform', 'translate(' + [margin.left - axisPadding, margin.top] + ')');
+    yGroup.call(yAxis);
+    styleAxis(yGroup);
+
+
+    // Label layer
+    var label = svg.append('g')
+        .attr('transform', 'translate(' + [margin.left - axisPadding, margin.top] + ')');
+    label.append('text')
+        .text('CO2 g/pkm')
+        .attr('transform', 'rotate(-90)')
+        .attr({
+            'text-anchor': 'start',
+            x: -95,
+            y: 20,
+        })
+    label.append('text')
+        .text('Emissions for Different Methods of Transportation')
+        .attr('transform', 'translate(' + [Width / 2, - margin.top / 2] + ')')
+        .attr({
+            'text-anchor': 'middle',
+            'font-size': '1.5em',
+            fill: 'black',
+        });
+
+
+    // Drawing for graph body
+    var graph = svg.append('g')
+        .attr('class', 'graph')
+        .attr('transform', 'translate(' + [margin.left, margin.top + Height] + ')');
+    var bars = graph.selectAll('g')
+        .data(data)
+        .enter()
+        .append('g')
+        .attr('transform', function(d,i){ return 'translate(' + [xScale(d.vehicle), -1 * yScale(d.emissions)] + ')'; });
+    bars.append('rect')
+        .each(function(d,i){
+            d3.select(this).attr({
+                fill: '#31cb00',
+                width: xScale.rangeBand(),
+                height: yScale(d.emissions),
+            })
+        })
+        .on('mouseover', mouseover)
+        .on('mousemove', mousemove)
+        .on('mouseout', mouseout);
+
+    bars.append('text')
+    .text(function(d){ return d.emissions; })
+    .each(function(d,i){
+        d3.select(this).attr({
+            fill: 'black',
+            stroke: 'none',
+            x: xScale.rangeBand() / 2,
+            y: -5,
+            'text-anchor': 'middle',
+        });
+    })
+
+
+
+    // tooltips
+    var div = d3.select('#container').append('div')
+        .attr('class', 'tooltip')
+        .style('display', 'none');
+    function mouseover(){
+        div.style('display', 'inline');
+    }
+    function mousemove(){
+        var d = d3.select(this).data()[0]
+        div
+            .html(d.vehicle + '<hr/>' + d.emissions)
+            .style('left', (d3.event.pageX - 44) + 'px')
+            .style('top', (d3.event.pageY - 2) + 'px');
+    }
+    function mouseout(){
+        div.style('display', 'none');
+    }
+})
+
+
+function styleAxis(axis){
+    // style path
+    axis.select('.domain').attr({
+        fill: 'none',
+        stroke: '#888',
+        'stroke-width': 1
+    });
+    // style tick
+    axis.selectAll('.tick line').attr({
+        stroke: '#000',
+        'stroke-width': 1,
+    })
+}
+
+</script>
+</body>

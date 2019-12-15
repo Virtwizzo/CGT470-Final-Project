@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+body {
+  background-color: white;
+  text-align: center;
+  font-family: sans-serif;
+}
+.land {
+  fill: #dddddd;
+}
+.border {
+  fill: none;
+  stroke-width: 1px;
+}
+.interior {
+  stroke: white;
+}
+.exterior {
+  stroke: #bbbbbb;
+}
+/* shadow trick from bl.ocks.org */
+#tooltip {
+  font-size: 10pt;
+  font-weight: 900;
+  fill: white;
+  text-shadow: 1px 1px 0 #252525, 1px -1px 0 #252525, -1px 1px 0 #252525, -1px -1px 0 #252525;
+}
+
+.tooltip-flights
+{
+  position      : absolute;
+  text-align    : center;
+  /*max-width     : 70px;
+  max-height    : 30px;*/
+  padding       : 8px;
+  border        : none;
+  border-radius : 8px;
+  margin-top    : -30px;
+  font          : 10pt sans-serif;
+  background    : black;
+  color         : white;
+  pointer-events: none;
+  }
+
+/* legend */
+#legend-container
+{
+  margin-top: 2em;  
+}
+
+#legend-title
+{
+  margin-top: 0;
+  text-align: center;
+}
+</style>
+<!-- NAV SECTION + styling -->
+<div class="nav">
+      <ul>
+        <li><a href="../info/index.html">Info</a></li>
+        <li><a href="../Final_Barchart/index.html">Bar Chart</a></li>
+        <li><a href="../Final_AreaChart/index.html">Area Chart</a></li>
+        <li><a href="#" class="active">Map</a></li>
+      </ul>
+</div>
+<style>
+/*NAV CSS*/
+.nav{
+  background: #90EE90
+}
+.nav ul {
+  list-style: none;
+  background-color: #808080;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+.nav li {
+  
+  font-size: 1.4em;
+  line-height: 40px;
+  height: 40px;
+  border-bottom: 1px solid #888;
+}
+ 
+.nav a {
+  text-decoration: none;
+  color: #fff;
+  display: block;
+  transition: .4s background-color;
+}
+ 
+.nav a:hover {
+  background-color: black;
+	color: white;
+}
+ 
+.nav a.active {
+  background-color: #fff;
+  color: #444;
+  cursor: default;
+}
+ 
+@media screen and (min-width: 600px) {
+  .nav li {
+    width: 120px;
+    border-bottom: none;
+    height: 50px;
+    line-height: 50px;
+    font-size: 1.4em;
+  }
+
+  .nav li {
+    display: inline-block;
+    margin-right: -4px;
+  }
+}	
+</style>
+<svg width="960" height="500"></svg>
+<div id="legend-container">
+  <div id="legend1"></div>
+  <p id="legend-title">Carbon emissions (metric tons)</p>
+</div>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/topojson.v1.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="tooltip.js"></script>
+<script src="script.js"></script>
